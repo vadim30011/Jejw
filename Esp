@@ -1,0 +1,45 @@
+local Players = game:GetService("Players")
+local Camera = game:GetService("Workspace").CurrentCamera
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local espObjects = {}
+
+-- Функция для создания метки
+local function createESP(player)
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Parent = player.Character:WaitForChild("Head")  -- Привязываем к голове игрока
+    billboardGui.Adornee = player.Character:WaitForChild("Head")
+    billboardGui.Size = UDim2.new(0, 100, 0, 50)
+    billboardGui.StudsOffset = Vector3.new(0, 3, 0) -- Позиция над головой
+
+    local label = Instance.new("TextLabel")
+    label.Parent = billboardGui
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.Text = player.Name
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)  -- Белый цвет текста
+    label.BackgroundTransparency = 1  -- Прозрачный фон
+    label.TextStrokeTransparency = 0.8  -- Окружение текста
+    label.TextSize = 20  -- Размер шрифта
+end
+
+-- Функция для удаления ESP
+local function removeESP(player)
+    if espObjects[player] then
+        espObjects[player]:Destroy()
+        espObjects[player] = nil
+    end
+end
+
+-- Создание ESP для новых игроков
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        createESP(player)
+        espObjects[player] = character:WaitForChild("Head")
+    end)
+end)
+
+-- Удаление ESP для игроков, которые покидают игру
+Players.PlayerRemoving:Connect(function(player)
+    removeESP(player)
+end)
